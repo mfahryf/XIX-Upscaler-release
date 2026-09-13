@@ -1,0 +1,35 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "XIX-Upscaler",
+  "version": "0.1.0",
+  "identifier": "net.xixlabs.upscaler",
+  "build": {
+    "frontendDist": "../src"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "XIX-Upscaler",
+        "width": 300,
+        "height": 600,
+        "minWidth": 300,
+        "maxWidth": 300,
+        "resizable": false,
+        "decorations": false,
+        "transparent": true,
+        "shadow": false,
+        "center": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "icon": [],
+    "resources": ["tor-runtime/", "models/", "ffmpeg-runtime/"]
+  }
+}

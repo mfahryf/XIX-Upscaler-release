@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Winamp Classic Skin Recreation</title>
+<style>
+  :root{
+    --amp-bg: #232839;
+    --amp-bg-dark: #14151c;
+    --amp-metal-light: #3a4055;
+    --amp-metal-dark: #1a1e2a;
+    --amp-green: #00ff00;
+    --amp-green-dim: #008000;
+    --amp-lcd-bg: #0a1a10;
+    --amp-lcd-glow: #00ff41;
+    --amp-title-grad-1: #1a2c4e;
+    --amp-title-grad-2: #4a6ba8;
+    --amp-text: #d8dce8;
+    --amp-btn-face: #2b3040;
+    --amp-btn-hi: #4a5068;
+    --amp-btn-lo: #0e1018;
+  }
+
+  *{ box-sizing:border-box; }
+
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:
+      radial-gradient(circle at 30% 20%, #2a2f45 0%, #14151f 60%),
+      repeating-linear-gradient(45deg, #10121a 0 2px, #14161f 2px 4px);
+    font-family: 'Tahoma','MS Sans Serif',Arial,sans-serif;
+    padding: 24px;
+  }
+
+  .winamp{
+    width: 275px;
+    background: var(--amp-bg);
+    border: 1px solid #000;
+    box-shadow:
+      inset 1px 1px 0 rgba(255,255,255,0.08),
+      0 10px 40px rgba(0,0,0,0.7);
+    user-select:none;
+  }
+
+  /* ===== TITLE BAR ===== */
+  .titlebar{
+    height: 14px;
+    background:
+      repeating-linear-gradient(180deg,
+        #1a2c4e 0px, #1a2c4e 1px,
+        #24417a 1px, #24417a 2px);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding: 0 3px;
+    border-bottom: 1px solid #000;
+  }
+  .titlebar .label{
+    color:#c6d4f0;
+    font-size:9px;
+    font-weight:bold;
+    letter-spacing:0.5px;
+    text-shadow: 0 1px 0 #000;
+  }
+  .titlebar .win-controls{
+    display:flex;
+    gap:2px;
+  }
+  .win-controls span{
+    width:9px; height:9px;
+    background: var(--amp-btn-face);
+    border: 1px solid #0a0c14;
+    box-shadow: inset 1px 1px 0 #5a6padding, inset 1px 1px 0 rgba(255,255,255,0.25);
+    font-size:7px;
+    color:#aab;
+    display:flex;align-items:center;justify-content:center;
+    line-height:0;
+  }
+
+  /* ===== MAIN DISPLAY AREA ===== */
+  .display{
+    display:flex;
+    padding: 6px 8px 4px 8px;
+    gap:6px;
+  }
+
+  .lcd{
+    background: var(--amp-lcd-bg);
+    border: 1px solid #000;
+    box-shadow: inset 1px 1px 3px rgba(0,0,0,0.9), inset -1px -1px 0 rgba(0,255,65,0.05);
+    padding: 3px 5px;
+    width: 112px;
+  }
+  .lcd .clock{
+    font-family: 'Courier New', monospace;
+    font-size: 20px;
+    font-weight:bold;
+    color: var(--amp-lcd-glow);
+    text-shadow: 0 0 6px rgba(0,255,65,0.55);
+    letter-spacing: 1px;
+    line-height:1;
+  }
+  .lcd .kbps{
+    font-size:8px;
+    color: var(--amp-green-dim);
+    margin-top:2px;
+    display:flex;
+    justify-content:space-between;
+  }
+  .lcd .kbps b{ color:#3fff3f; font-weight:normal; }
+
+  .eq-vis{
+    flex:1;
+    background: var(--amp-lcd-bg);
+    border:1px solid #000;
+    box-shadow: inset 1px 1px 3px rgba(0,0,0,0.9);
+    display:flex;
+    align-items:flex-end;
+    gap:2px;
+    padding: 3px;
+    overflow:hidden;
+  }
+  .eq-vis .bar{
+    width:4px;
+    background: linear-gradient(0deg, #00cc33, #7dff5c);
+    box-shadow: 0 0 3px rgba(0,255,65,0.6);
+    animation: bounce 1.1s ease-in-out infinite;
+  }
+  .eq-vis .bar:nth-child(1){height:40%;animation-delay:0s;}
+  .eq-vis .bar:nth-child(2){height:70%;animation-delay:0.1s;}
+  .eq-vis .bar:nth-child(3){height:30%;animation-delay:0.2s;}
+  .eq-vis .bar:nth-child(4){height:90%;animation-delay:0.3s;}
+  .eq-vis .bar:nth-child(5){height:55%;animation-delay:0.4s;}
+  .eq-vis .bar:nth-child(6){height:75%;animation-delay:0.5s;}
+  .eq-vis .bar:nth-child(7){height:35%;animation-delay:0.6s;}
+  .eq-vis .bar:nth-child(8){height:60%;animation-delay:0.7s;}
+  .eq-vis .bar:nth-child(9){height:45%;animation-delay:0.8s;}
+  .eq-vis .bar:nth-child(10){height:80%;animation-delay:0.9s;}
+  @keyframes bounce{
+    0%,100%{ transform:scaleY(0.5); opacity:0.7;}
+    50%{ transform:scaleY(1); opacity:1;}
+  }
+
+  /* ===== SONG TITLE MARQUEE ===== */
+  .marquee-wrap{
+    margin: 0 8px 4px 8px;
+    background: var(--amp-lcd-bg);
+    border:1px solid #000;
+    box-shadow: inset 1px 1px 3px rgba(0,0,0,0.9);
+    overflow:hidden;
+    height: 15px;
+    display:flex;
+    align-items:center;
+  }
+  .marquee{
+    white-space:nowrap;
+    color: var(--amp-lcd-glow);
+    font-family:'Courier New',monospace;
+    font-size:11px;
+    font-weight:bold;
+    text-shadow:0 0 4px rgba(0,255,65,0.6);
+    padding-left:100%;
+    animation: scroll-left 9s linear infinite;
+  }
+  @keyframes scroll-left{
+    0%{ transform: translateX(0); }
+    100%{ transform: translateX(-100%); }
+  }
+
+  /* ===== TIME/STEREO/MONO ROW ===== */
+  .info-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding: 0 8px 4px 8px;
+    font-size:8px;
+    color:#8895b8;
+  }
+  .info-row .chan{
+    display:flex; flex-direction:column; gap:1px;
+    font-weight:bold;
+  }
+  .info-row .chan span{
+    padding:0 2px;
+  }
+  .info-row .chan .active{ color:#3fff3f; }
+
+  /* ===== SLIDERS: volume / balance ===== */
+  .sliders{
+    display:flex;
+    justify-content:flex-end;
+    gap:6px;
+    padding: 0 8px 6px 8px;
+  }
+  .slider-track{
+    width:68px; height:10px;
+    background:
+      linear-gradient(180deg,#0d0f16,#1c2030);
+    border:1px solid #000;
+    box-shadow: inset 1px 1px 2px rgba(0,0,0,0.9);
+    position:relative;
+  }
+  .slider-track .thumb{
+    position:absolute;
+    top:-1px;
+    width:12px; height:10px;
+    background: linear-gradient(180deg,var(--amp-btn-hi),var(--amp-btn-face) 40%,var(--amp-btn-lo));
+    border:1px solid #000;
+    box-shadow: inset 1px 1px 0 rgba(255,255,255,0.3);
+  }
+  .vol .thumb{ left: 40px; }
+  .bal .thumb{ left: 28px; }
+
+  /* ===== SEEK BAR ===== */
+  .seek-wrap{
+    padding: 0 8px 6px 8px;
+  }
+  .seek-track{
+    height:8px;
+    background: linear-gradient(180deg,#0d0f16,#1c2030);
+    border:1px solid #000;
+    box-shadow: inset 1px 1px 2px rgba(0,0,0,0.9);
+    position:relative;
+  }
+  .seek-track .fill{
+    position:absolute; top:1px; left:1px; bottom:1px;
+    width:35%;
+    background: linear-gradient(180deg,#4a7a2a,#7bbf3f);
+  }
+  .seek-track .thumb{
+    position:absolute; top:-1px; left:calc(35% - 4px);
+    width:8px; height:10px;
+    background: linear-gradient(180deg,var(--amp-btn-hi),var(--amp-btn-lo));
+    border:1px solid #000;
+  }
+
+  /* ===== TRANSPORT BUTTONS ===== */
+  .transport{
+    display:flex;
+    align-items:center;
+    gap:2px;
+    padding: 0 8px 8px 8px;
+  }
+  .tbtn{
+    width:22px; height:16px;
+    background: linear-gradient(180deg,var(--amp-btn-hi) 0%, var(--amp-btn-face) 45%, var(--amp-btn-lo) 100%);
+    border: 1px solid #050609;
+    box-shadow: inset 1px 1px 0 rgba(255,255,255,0.25);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+  }
+  .tbtn:active{
+    background: linear-gradient(180deg,var(--amp-btn-lo),var(--amp-btn-face));
+    box-shadow: inset 1px 1px 2px rgba(0,0,0,0.8);
+  }
+  .tbtn svg{ width:9px; height:9px; }
+  .eject{
+    margin-left:6px;
+    width:30px;
+  }
+
+  .toggles{
+    margin-left:auto;
+    display:flex;
+    gap:2px;
+  }
+  .tgbtn{
+    width:22px;height:12px;
+    background: linear-gradient(180deg,var(--amp-btn-hi),var(--amp-btn-face) 45%,var(--amp-btn-lo));
+    border:1px solid #050609;
+    font-size:7px;
+    color:#9aa4c0;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:bold;
+    cursor:pointer;
+  }
+  .tgbtn.on{
+    background: linear-gradient(180deg,#12331a,#1e5028);
+    color:#3fff3f;
+    box-shadow: inset 1px 1px 2px rgba(0,0,0,0.8);
+  }
+
+  /* ===== BOTTOM METAL BAR (playlist toggle etc) ===== */
+  .bottombar{
+    height:14px;
+    background:
+      repeating-linear-gradient(180deg,#2b3040 0px,#2b3040 1px,#333955 1px,#333955 2px);
+    border-top:1px solid #000;
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    gap:3px;
+    padding:0 4px;
+  }
+  .bottombar .mini{
+    width:8px;height:8px;
+    background:var(--amp-btn-face);
+    border:1px solid #050609;
+  }
+
+  .credit{
+    text-align:center;
+    color:#5a6280;
+    font-size:10px;
+    margin-top:14px;
+    font-family:Tahoma,Arial,sans-serif;
+  }
+
+  /* ===== PLAYLIST WINDOW ===== */
+  .playlist{
+    width: 275px;
+    background: var(--amp-bg);
+    border: 1px solid #000;
+    border-top: none;
+    box-shadow: inset 1px 0 0 rgba(255,255,255,0.06), 0 10px 30px rgba(0,0,0,0.6);
+  }
+  .playlist .titlebar{
+    background:
+      repeating-linear-gradient(180deg,
+        #1a2c4e 0px, #1a2c4e 1px,
+        #24417a 1px, #24417a 2px);
+  }
+  .playlist .titlebar .label{
+    font-size:8px;
+  }
+
+  .pl-body{
+    background: var(--amp-lcd-bg);
+    margin: 3px 3px 0 3px;
+    border: 1px solid #000;
+    box-shadow: inset 1px 1px 3px rgba(0,0,0,0.9);
+    height: 116px;
+    overflow-y: auto;
+    font-family:'Courier New',monospace;
+    font-size:11px;
+  }
+  .pl-body::-webkit-scrollbar{ width:12px; }
+  .pl-body::-webkit-scrollbar-track{ background:#0d0f16; }
+  .pl-body::-webkit-scrollbar-thumb{
+    background: linear-gradient(180deg,var(--amp-btn-hi),var(--amp-btn-lo));
+    border:1px solid #000;
+  }
+  .pl-body .track{
+    display:flex;
+    padding: 1px 6px;
+    color: #4aff4a;
+    white-space:nowrap;
+  }
+  .pl-body .track:nth-child(odd){ background: rgba(255,255,255,0.02); }
+  .pl-body .track:hover{ background: #1e5028; color:#eaffea; cursor:pointer; }
+  .pl-body .track.selected{ background: #1e5028; color:#eaffea; }
+  .pl-body .track .num{ width:20px; color:#2a9d2a; flex-shrink:0; }
+  .pl-body .track.selected .num{ color:#9dffb0; }
+  .pl-body .track .title{ flex:1; overflow:hidden; text-overflow:ellipsis; }
+  .pl-body .track .len{ margin-left:8px; color:#2a9d2a; }
+  .pl-body .track.selected .len{ color:#9dffb0; }
+
+  .pl-status{
+    display:flex;
+    justify-content:space-between;
+    padding: 2px 6px;
+    margin: 0 3px;
+    font-size:9px;
+    color:#8895b8;
+    background: var(--amp-bg);
+  }
+
+  .pl-scrollhandle{
+    height:6px;
+    margin: 2px 3px 0 3px;
+    background: linear-gradient(180deg,#0d0f16,#1c2030);
+    border:1px solid #000;
+    box-shadow: inset 1px 1px 2px rgba(0,0,0,0.9);
+    position:relative;
+  }
+  .pl-scrollhandle .thumb{
+    position:absolute; top:-1px; left:6px;
+    width:26px; height:8px;
+    background: linear-gradient(180deg,var(--amp-btn-hi),var(--amp-btn-face) 45%,var(--amp-btn-lo));
+    border:1px solid #000;
+    box-shadow: inset 1px 1px 0 rgba(255,255,255,0.25);
+  }
+
+  .pl-toolbar{
+    display:flex;
+    gap:2px;
+    padding: 4px 3px 4px 3px;
+    align-items:center;
+  }
+  .pl-btn{
+    height:16px;
+    min-width:22px;
+    padding:0 6px;
+    background: linear-gradient(180deg,var(--amp-btn-hi),var(--amp-btn-face) 45%,var(--amp-btn-lo));
+    border:1px solid #050609;
+    box-shadow: inset 1px 1px 0 rgba(255,255,255,0.25);
+    color:#c8d0e6;
+    font-size:9px;
+    font-weight:bold;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    font-family:Tahoma,Arial,sans-serif;
+  }
+  .pl-btn:active{
+    background: linear-gradient(180deg,var(--amp-btn-lo),var(--amp-btn-face));
+    box-shadow: inset 1px 1px 2px rgba(0,0,0,0.8);
+  }
+  .pl-toolbar .grow{ flex:1; }
+  .pl-resize{
+    width:14px;height:14px;
+    background: var(--amp-btn-face);
+    border:1px solid #050609;
+    margin-left:2px;
+    background-image:
+      linear-gradient(135deg, transparent 45%, #5a6484 45%, #5a6484 55%, transparent 55%),
+      linear-gradient(135deg, transparent 65%, #5a6484 65%, #5a6484 75%, transparent 75%);
+  }
+</style>
+</head>
+<body>
+
+<div>
+  <div class="winamp">
+    <div class="titlebar">
+      <span class="label" title="Nama aplikasi">★ XIX-DESKTOP</span>
+      <div class="win-controls">
+        <span>_</span><span>▢</span><span>✕</span>
+      </div>
+    </div>
+
+    <div class="display">
+      <div class="lcd" title="Status proses: 0 dari 0 file selesai">
+        <div class="clock">0/0</div>
+        <div class="kbps"><b>SVG</b> &nbsp; Full-bleed</div>
+      </div>
+      <div class="eq-vis" title="Indikator aktivitas proses">
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        <div class="bar"></div>
+      </div>
+    </div>
+
+    <div class="marquee-wrap">
+      <div class="marquee">*** READY — VECTORIZE V2 [25 MP] ***&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+    </div>
+
+    <div class="info-row">
+      <div class="chan" title="Mode penyesuaian ukuran">
+        <span class="active">AUTO</span>
+        <span>MANUAL</span>
+      </div>
+      <div class="sliders">
+        <div class="slider-track vol" title="Kualitas output"><div class="thumb"></div></div>
+        <div class="slider-track bal" title="Fit: Full-bleed"><div class="thumb"></div></div>
+      </div>
+    </div>
+
+    <div class="seek-wrap">
+      <div class="seek-track" title="Progres proses"><div class="fill" style="width:4%"></div><div class="thumb" style="left:calc(4% - 4px)"></div></div>
+    </div>
+
+    <div class="transport">
+      <div class="tbtn" title="File sebelumnya dalam antrian">
+        <svg viewBox="0 0 10 10"><polygon points="8,1 3,5 8,9" fill="#c8d0e6"/><rect x="1" y="1" width="1.5" height="8" fill="#c8d0e6"/></svg>
+      </div>
+      <div class="tbtn" title="START — mulai proses vectorize">
+        <svg viewBox="0 0 10 10"><polygon points="2,1 9,5 2,9" fill="#c8d0e6"/></svg>
+      </div>
+      <div class="tbtn" title="PAUSE — jeda proses">
+        <svg viewBox="0 0 10 10"><rect x="2" y="1" width="2.4" height="8" fill="#c8d0e6"/><rect x="5.6" y="1" width="2.4" height="8" fill="#c8d0e6"/></svg>
+      </div>
+      <div class="tbtn" title="STOP — hentikan proses">
+        <svg viewBox="0 0 10 10"><rect x="1.5" y="1.5" width="7" height="7" fill="#c8d0e6"/></svg>
+      </div>
+      <div class="tbtn" title="File berikutnya dalam antrian">
+        <svg viewBox="0 0 10 10"><polygon points="2,1 7,5 2,9" fill="#c8d0e6"/><rect x="7.5" y="1" width="1.5" height="8" fill="#c8d0e6"/></svg>
+      </div>
+      <div class="tbtn eject" title="Buka folder output">
+        <svg viewBox="0 0 18 10"><polygon points="9,1 15,7 3,7" fill="#c8d0e6"/><rect x="3" y="8" width="12" height="1.5" fill="#c8d0e6"/></svg>
+      </div>
+
+      <div class="toggles">
+        <div class="tgbtn on" title="Tampilkan opsi lanjutan">ADV</div>
+        <div class="tgbtn" title="Tampilkan/sembunyikan playlist">PL</div>
+      </div>
+    </div>
+
+    <div class="bottombar">
+      <div class="mini"></div><div class="mini"></div><div class="mini"></div>
+    </div>
+  </div>
+
+  <div class="playlist">
+    <div class="titlebar">
+      <span class="label" title="Daftar file input">PLAYLIST</span>
+      <div class="win-controls">
+        <span>_</span><span>▢</span><span>✕</span>
+      </div>
+    </div>
+
+    <div class="pl-body">
+      <div class="track selected"><span class="num">1.</span><span class="title">foto_01.jpg</span><span class="len">OK</span></div>
+      <div class="track"><span class="num">2.</span><span class="title">logo_perusahaan_final.png</span><span class="len">OK</span></div>
+      <div class="track"><span class="num">3.</span><span class="title">sketsa_03.jpg</span><span class="len">OK</span></div>
+      <div class="track"><span class="num">4.</span><span class="title">banner_promo.png</span><span class="len">OK</span></div>
+      <div class="track"><span class="num">5.</span><span class="title">ikon_set_05.png</span><span class="len">OK</span></div>
+      <div class="track"><span class="num">6.</span><span class="title">poster_event.jpg</span><span class="len">OK</span></div>
+      <div class="track"><span class="num">7.</span><span class="title">gambar_referensi.png</span><span class="len">OK</span></div>
+      <div class="track"><span class="num">8.</span><span class="title">desain_akhir.jpg</span><span class="len">OK</span></div>
+    </div>
+
+    <div class="pl-scrollhandle"><div class="thumb"></div></div>
+
+    <div class="pl-status">
+      <span>8 file</span>
+      <span style="color:#3fff3f;">READY</span>
+    </div>
+
+    <div class="pl-toolbar">
+      <div class="pl-btn" title="Buka file input dari komputer">BUKA</div>
+      <div class="pl-btn" title="Hapus file terpilih dari daftar">HAPUS</div>
+      <div class="pl-btn" title="Pilih semua file">PILIH</div>
+      <div class="pl-btn" title="Opsi lanjutan per-file">OPSI</div>
+      <div class="grow"></div>
+      <div class="pl-btn" title="Pilih folder output hasil">OUTPUT</div>
+      <div class="pl-btn" title="Simpan / ekspor hasil">SIMPAN</div>
+      <div class="pl-resize" title="Ubah ukuran jendela"></div>
+    </div>
+  </div>
+
+  <div class="credit">XIX-DESKTOP — layout &amp; gaya Winamp Classic, kontrol dipetakan ulang</div>
+</div>
+
+</body>
+</html>

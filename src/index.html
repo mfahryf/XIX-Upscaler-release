@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <title>XIX-Upscaler</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-theme="glass">
+  <div id="app">
+    <!-- lapisan efek latar belakang (di belakang semua konten) -->
+    <div id="bg-fx" aria-hidden="true"></div>
+
+    <!-- ===== TITLE BAR ===== -->
+    <div id="titlebar" class="titlebar" data-tauri-drag-region>
+      <span class="label" data-tauri-drag-region>★ XIX-UPSCALER</span>
+      <div class="win-controls">
+        <button id="btn-min" title="Minimize"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg></button>
+        <button id="btn-close" title="Close"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+      </div>
+    </div>
+
+    <!-- ===== MAIN DISPLAY ===== -->
+    <div class="display">
+      <div class="lcd" title="Status proses: file selesai / total">
+        <div class="clock">
+          <span id="lcd-count">0/0</span>
+          <span class="err-count hidden" id="lcd-err" title="Jumlah error">✘0</span>
+        </div>
+        <div class="kbps"><b id="lcd-fmt">SVG</b><span id="lcd-fit">Full-bleed</span></div>
+      </div>
+      <div class="eq-vis" id="eq-vis" title="Indikator aktivitas proses">
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        <div class="bar"></div>
+        <div class="eq-timer" id="eq-timer" title="Waktu proses">0:00</div>
+      </div>
+    </div>
+
+    <!-- ===== MARQUEE (status) ===== -->
+    <div class="marquee-wrap">
+      <div class="marquee" id="lcd-status">READY</div>
+    </div>
+
+    <!-- ===== ENGINE / FORMAT / FIT ===== -->
+    <!-- engine → parameter (scale/fit) → format output (selalu paling kanan) -->
+    <div class="cfg-row">
+      <div class="dd" id="dd-engine" title="Engine"></div>
+      <div class="dd" id="dd-scale" title="Skala upscale"></div>
+      <div class="dd" id="dd-fit" title="Fit artboard"></div>
+      <div class="dd" id="dd-format" title="Format output"></div>
+    </div>
+
+    <!-- ===== SEEK BAR (progress) ===== -->
+    <div class="seek-wrap">
+      <div class="seek-track" id="seek" title="Progres proses">
+        <div class="fill" id="seek-fill"></div>
+        <div class="thumb" id="seek-thumb"></div>
+      </div>
+    </div>
+
+    <!-- ===== TRANSPORT ===== -->
+    <div class="transport">
+      <div class="tbtn run-ctrl" id="btn-start" title="START — mulai proses">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"/></svg>
+      </div>
+      <div class="tbtn run-ctrl disabled" id="btn-pause" title="PAUSE — jeda proses">
+        <svg class="ic-pause" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="14" y="3" width="5" height="18" rx="1"/><rect x="5" y="3" width="5" height="18" rx="1"/></svg>
+        <svg class="ic-play" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"/></svg>
+      </div>
+      <div class="tbtn run-ctrl disabled" id="btn-stop" title="STOP — hentikan proses">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/></svg>
+      </div>
+      <div class="tbtn sep" id="btn-pick-files" title="Pilih file gambar (multi)"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2h-4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8"/><path d="M16.706 2.706A2.4 2.4 0 0 0 15 2v5a1 1 0 0 0 1 1h5a2.4 2.4 0 0 0-.706-1.706z"/><path d="M5 7a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h8a2 2 0 0 0 1.732-1"/></svg></div>
+      <div class="tbtn" id="btn-pick-folder" title="Pilih folder input"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></div>
+      <div class="toggles">
+        <div class="tgbtn" id="btn-adv" title="Tampilkan opsi lanjutan">ADV</div>
+        <button type="button" class="tgbtn hidden" id="btn-mute" aria-pressed="false" title="Hilangkan audio dari output video">MUTE</button>
+        <button type="button" class="tgbtn hidden" id="btn-drive" aria-pressed="false" aria-expanded="false" aria-controls="drive-menu" title="Hubungkan Google Drive">DRIVE</button>
+        <div class="drive-menu hidden" id="drive-menu" aria-label="Akun Google Drive">
+          <span id="drive-account"></span>
+          <button type="button" id="drive-switch">GANTI AKUN</button>
+          <button type="button" id="drive-disconnect">PUTUSKAN AKUN</button>
+        </div>
+        <div class="tgbtn" id="btn-settings" title="Settings (proxy, tema)"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg></div>
+      </div>
+    </div>
+
+    <!-- ===== ADVANCED PANEL (collapsible) ===== -->
+    <div id="adv-panel">
+      <div class="cfg">
+        <label>OUTPUT</label>
+        <input type="text" id="cfg-output" spellcheck="false" placeholder="folder hasil">
+        <button class="pick" id="btn-output" title="Buka folder output"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></button>
+      </div>
+      <!-- opsi engine dirender dari options_schema (renderAdvOpts) -->
+      <div id="adv-opts"></div>
+    </div>
+
+    <!-- ===== PLAYLIST ===== -->
+    <div id="playlist">
+      <div class="titlebar">
+        <span class="label">PLAYLIST</span>
+      </div>
+      <div class="pl-body" id="pl-body">
+        <ul id="pl-list"></ul>
+      </div>
+      <div class="pl-status">
+        <span id="pl-count">0 file</span>
+        <button type="button" id="btn-colab-notebook" class="hidden">BUKA COLAB</button>
+        <span id="pl-status">READY</span>
+      </div>
+      <div class="pl-toolbar">
+        <div class="clear-menu hidden" id="clear-menu">
+          <div class="cm-item" id="cm-all">Hapus semua</div>
+          <div class="cm-item" id="cm-done">Hapus yang berhasil</div>
+        </div>
+        <div class="pl-btn" id="btn-remove" title="Bersihkan playlist"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></div>
+        <div class="pl-btn fx-btn" id="btn-bg-fx" title="Efek latar: none">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg>
+          <span class="fx-name">OFF</span>
+        </div>
+        <div class="grow"></div>
+        <div class="pl-btn" id="btn-output-dir" title="Buka folder output"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"/></svg></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== SETTINGS MODAL (proxy) ===== -->
+  <div id="modal-overlay" class="hidden">
+    <div id="modal">
+      <div class="modal-title">SETTINGS</div>
+      <div class="modal-body">
+        <div class="cfg">
+          <label>PROXY MODE</label>
+          <div class="dd" id="dd-proxy-mode"></div>
+        </div>
+        <div class="cfg">
+          <label>HPROXY KEY</label>
+          <input type="text" id="hproxy-key" spellcheck="false" autocomplete="off" placeholder="API key HProxy (opsional)" />
+        </div>
+        <textarea id="proxy-list" spellcheck="false" placeholder="satu proxy per baris:&#10;socks5://ip:port&#10;http://ip:port&#10;http://user:pass@ip:port"></textarea>
+        <div class="modal-actions">
+          <button id="proxy-save">SAVE</button>
+          <button id="proxy-close">CLOSE</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="engine-config.js"></script>
+  <script src="colab-engine-ui.js"></script>
+  <script src="colab-remote-ui.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>

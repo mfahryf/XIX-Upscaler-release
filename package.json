@@ -1,0 +1,14 @@
+{
+  "name": "xix-upscaler",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "tauri dev",
+    "dev:debug": "set XIX_COLAB_DEBUG=1&& tauri dev",
+    "build": "tauri build",
+    "test": "node --test src/*.test.js"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2"
+  }
+}
