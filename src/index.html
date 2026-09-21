@@ -83,6 +83,9 @@
           <button type="button" id="drive-disconnect">PUTUSKAN AKUN</button>
         </div>
         <div class="tgbtn" id="btn-settings" title="Settings (proxy, tema)"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg></div>
+        <button type="button" class="tgbtn" id="btn-license" title="License" aria-label="License">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15.5 7.5 2 2"/><path d="m13.5 9.5 2 2"/><path d="M19 3a2.12 2.12 0 1 1 3 3L9.91 18.09a5 5 0 1 1-3-3L19 3Z"/><path d="M6.5 17.5h.01"/></svg>
+        </button>
       </div>
     </div>
 
@@ -127,6 +130,49 @@
 
   </div>
 
+  <!-- ===== LICENSE MODAL ===== -->
+  <div id="license-modal-overlay" class="hidden" aria-hidden="true">
+    <div id="license-modal" role="dialog" aria-modal="true" aria-labelledby="license-modal-title">
+      <div class="modal-title">
+        <span id="license-modal-title">LICENSE</span>
+        <button id="license-close" type="button" aria-label="Close license">×</button>
+      </div>
+      <div class="modal-body">
+        <section id="license-panel" aria-label="Application license">
+          <div class="license-head">
+            <span class="license-label">LICENSE</span>
+            <span id="license-badge">CHECKING</span>
+            <button id="license-refresh" type="button" aria-label="Refresh license">↻</button>
+          </div>
+          <div id="license-status">Checking license status…</div>
+          <div id="license-expiry" class="license-expiry hidden" aria-live="polite"></div>
+          <div class="license-trial-label">Trial Limit:</div>
+          <div class="license-trials"><span id="license-trial-total">TOTAL: —/10</span></div>
+          <div class="license-actions">
+            <input id="license-key" type="password" autocomplete="off" spellcheck="false" placeholder="Mayar license code" aria-label="Mayar license code">
+            <button id="license-activate" type="button">ACTIVATE</button>
+          </div>
+          <div id="license-help">Trial: 10 successful files total. One license per device.</div>
+          <button id="license-buy" type="button">Get License</button>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== UPDATE MODAL ===== -->
+  <div id="update-modal-overlay" class="hidden" aria-hidden="true">
+    <div id="update-modal" role="dialog" aria-modal="true" aria-labelledby="update-modal-title">
+      <div class="modal-title"><span id="update-modal-title">UPDATE AVAILABLE</span></div>
+      <div class="modal-body">
+        <div id="update-message">A new version is available.</div>
+        <div class="modal-actions">
+          <button id="update-later" type="button">Later</button>
+          <button id="update-install" type="button">Update now</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== SETTINGS MODAL (proxy) ===== -->
   <div id="modal-overlay" class="hidden">
     <div id="modal">
@@ -152,6 +198,8 @@
   <script src="engine-config.js"></script>
   <script src="colab-engine-ui.js"></script>
   <script src="colab-remote-ui.js"></script>
+  <script>window.XIX_LICENSE_PURCHASE_URL = "https://xix-apps.myr.id/pl/xix-upscaler-monthly-license";</script>
+  <script src="licensing-ui.js"></script>
   <script src="main.js"></script>
 </body>
 </html>

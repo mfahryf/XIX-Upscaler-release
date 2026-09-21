@@ -27,8 +27,10 @@ pub enum BatchEvent {
         name: String,
     },
     FileDone {
+        input: String,
         name: String,
         output: String,
+        usage_event_id: String,
     },
     FileFail {
         name: String,
@@ -211,8 +213,10 @@ where
             macro_rules! mark_done {
                 () => {{
                     emit(BatchEvent::FileDone {
+                        input: file.0.to_string_lossy().replace('\\', "/"),
                         name: name.clone(),
-                        output: engine.output_name(&file.0, opts),
+                        output: out_dir.join(engine.output_name(&file.0, opts)).to_string_lossy().replace('\\', "/"),
+                        usage_event_id: uuid::Uuid::new_v4().to_string(),
                     });
                 }};
             }

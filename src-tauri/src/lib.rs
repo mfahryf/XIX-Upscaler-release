@@ -3,14 +3,16 @@ pub mod colab;
 pub mod config;
 pub mod engines;
 pub mod img;
+pub mod licensing;
 pub mod net;
 pub mod secure;
 pub mod svg;
 pub mod tor;
 
-use crate::batch::run_batch;
+use crate::batch::{run_batch, BatchEvent};
 use crate::config::{load as config_load, save as config_save, AppConfig};
 use crate::engines::{common_batch_options, EngineOptions, OptionDef};
+use crate::licensing::{AccessDecision, LicenseStatus, LicensingState};
 use crate::net::freeproxy::{self, Candidate};
 use crate::tor::{resolve_runtime, TorManager, TorRuntimePaths};
 use parking_lot::Mutex;
@@ -295,10 +297,13 @@ async fn start_batch(
     engine_id: String,
     mut options: EngineOptions,
     state: State<'_, BatchState>,
+    licensing: State<'_, LicensingState>,
     tor: State<'_, TorManager>,
     resources: State<'_, TorResources>,
 ) -> Result<(), String> {
     validate_local_batch_engine(&engine_id)?;
+    let decision = licensing.manager.preflight(&engine_id, 1).await.map_err(|error| error.to_string())?;
+    ensure_batch_allowed(&decision)?;
     let batch_start = state.begin_start();
     if needs_tor(&options) {
         let _ = app.emit(
@@ -352,6 +357,8 @@ async fn start_batch(
     let (cancel, pause) = batch_start.into_controls(&state)?;
     let total = files.len();
     let emit_app = app.clone();
+    let usage_manager = licensing.manager.clone();
+    let usage_engine_id = engine_id.clone();
     tauri::async_runtime::spawn(async move {
         let (ok, fail) = run_batch(
             make_engines,
@@ -361,6 +368,18 @@ async fn start_batch(
             cancel,
             pause,
             move |ev| {
+                if let BatchEvent::FileDone { input, output, usage_event_id, .. } = &ev {
+                    if let Err(error) = usage_manager.record_success_with_event_id(
+                        &usage_engine_id,
+                        Path::new(input),
+                        Path::new(output),
+                        usage_event_id,
+                    ) {
+                        eprintln!("LICENSE USAGE ERROR: {error}");
+                    }
+                    let sync_manager = usage_manager.clone();
+                    tauri::async_runtime::spawn(async move { let _ = sync_manager.sync_pending_usage().await; });
+                }
                 let _ = emit_app.emit("batch://event", ev);
             },
         )
@@ -372,6 +391,28 @@ async fn start_batch(
     });
     Ok(())
 }
+
+fn ensure_batch_allowed(decision: &AccessDecision) -> Result<(), String> {
+    if decision.allowed { Ok(()) } else { Err(decision.message.clone()) }
+}
+
+#[tauri::command]
+async fn license_status(state: State<'_, LicensingState>) -> Result<LicenseStatus, String> { state.manager.status().await.map_err(|error| error.to_string()) }
+
+#[tauri::command]
+async fn license_purchase_url(state: State<'_, LicensingState>) -> Result<String, String> { state.manager.checkout_url().await.map_err(|error| error.to_string()) }
+
+#[tauri::command]
+async fn activate_license(state: State<'_, LicensingState>, license_key: String) -> Result<LicenseStatus, String> { state.manager.activate(license_key).await.map_err(|error| error.to_string()) }
+
+#[tauri::command]
+async fn refresh_license(state: State<'_, LicensingState>) -> Result<LicenseStatus, String> { state.manager.refresh().await.map_err(|error| error.to_string()) }
+
+#[tauri::command]
+async fn license_preflight(state: State<'_, LicensingState>, engine_id: String, requested_files: usize) -> Result<AccessDecision, String> { state.manager.preflight(&engine_id, requested_files).await.map_err(|error| error.to_string()) }
+
+#[tauri::command]
+async fn license_sync_usage(state: State<'_, LicensingState>) -> Result<(), String> { state.manager.sync_pending_usage().await.map_err(|error| error.to_string()) }
 
 #[tauri::command]
 fn stat_files(files: Vec<String>) -> Vec<u64> {
@@ -425,6 +466,9 @@ fn save_config(app: AppHandle, cfg: AppConfig) -> Result<(), String> {
 pub fn run() {
     let app = tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .manage(TorManager::new())
         .manage(Arc::new(
             colab::auth::OAuthManager::new_with_local_environment(),
@@ -437,6 +481,10 @@ pub fn run() {
                 })
                 .and_then(|cwd| resolve_runtime(resource_root.as_deref(), &cwd));
             app.manage(TorResources { paths });
+
+            let app_data_dir = app.path().app_data_dir()
+                .map_err(|error| format!("cannot resolve licensing data directory: {error}"))?;
+            app.manage(LicensingState::new(&app_data_dir).map_err(|error| error.to_string())?);
 
             let oauth = app.state::<Arc<colab::auth::OAuthManager>>();
             let coordinator = (|| {
@@ -484,7 +532,13 @@ pub fn run() {
             pause_colab_batch,
             stop_colab_batch,
             resume_colab_jobs,
-            open_colab_notebook
+            open_colab_notebook,
+            license_status,
+            license_purchase_url,
+            activate_license,
+            refresh_license,
+            license_preflight,
+            license_sync_usage
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application");
@@ -535,7 +589,10 @@ async fn start_colab_batch(
     output: PathBuf,
     options: EngineOptions,
     runtime: State<'_, ColabRuntime>,
+    licensing: State<'_, LicensingState>,
 ) -> Result<(), String> {
+    let decision = licensing.manager.preflight("video-colab", files.len()).await.map_err(|error| error.to_string())?;
+    ensure_batch_allowed(&decision)?;
     runtime
         .coordinator()?
         .start_batch(colab::coordinator::StartColabRequest {
