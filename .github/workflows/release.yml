@@ -1,0 +1,48 @@
+name: Release Upscaler desktop
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Install JavaScript dependencies
+        run: npm ci
+      - name: Run application tests
+        run: npm test
+      - name: Build and publish Windows installer
+        uses: tauri-apps/tauri-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: Upscaler ${{ github.ref_name }}
+          releaseBody: Windows installer for XIX Upscaler.
+          releaseDraft: false
+          prerelease: false
+      - name: Publish stable installer download alias
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $installer = Get-ChildItem "src-tauri/target/release/bundle/nsis/*-setup.exe" | Select-Object -First 1
+          if (-not $installer) { throw "The Windows installer was not found." }
+          $stable = Join-Path $installer.DirectoryName "Upscaler-latest-x64-setup.exe"
+          Copy-Item -LiteralPath $installer.FullName -Destination $stable -Force
+          gh release upload "${{ github.ref_name }}" $stable --repo "${{ github.repository }}" --clobber
