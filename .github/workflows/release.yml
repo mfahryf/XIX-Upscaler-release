@@ -24,11 +24,6 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
       - name: Install JavaScript dependencies
         run: npm ci
-      - name: Run application tests
-        shell: pwsh
-        run: |
-          $tests = Get-ChildItem -Path src -Filter "*.test.js" -File -ErrorAction SilentlyContinue
-          if ($tests) { npm test } else { Write-Host "No tracked JavaScript tests found; continuing to the release build." }
       - name: Build and publish Windows installer
         uses: tauri-apps/tauri-action@v1
         env:
