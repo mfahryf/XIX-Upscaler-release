@@ -42,7 +42,7 @@ test("late local batch events cannot stop or overwrite an active Colab batch", a
   assert.equal(ui.$("pl-list").children[0].classList.contains("fail"), false);
   assert.equal(ui.$("btn-start").disabled, true);
   assert.equal(ui.$("btn-drive").disabled, true);
-  assert.match(ui.$("lcd-status").textContent, /MENGUNGGAH/);
+  assert.match(ui.$("lcd-status").textContent, /UPLOADING/);
 });
 
 test("DRIVE lights up when Start authenticated automatically and uploading begins", async () => {
@@ -72,14 +72,14 @@ test("clearing successful Colab rows preserves a failed video with the same file
 
 test("missing input/output remains actionable and rejected Start leaves controls available", async () => {
   const ui = await createFrontend({ handlers: {
-    start_colab_batch: () => { throw new Error("Video melebihi 60 detik"); },
+    start_colab_batch: () => { throw new Error("Video exceeds 60 seconds"); },
   } });
   await ui.$("btn-start").click();
-  assert.match(ui.$("lcd-status").textContent, /PILIH FILE/);
+  assert.match(ui.$("lcd-status").textContent, /SELECT INPUT FILES/);
   assert.equal(ui.calls.some((x) => x.command === "start_colab_batch"), false);
   await ui.pick();
   await ui.$("btn-start").click();
-  assert.match(ui.$("lcd-status").textContent, /60 detik/);
+  assert.match(ui.$("lcd-status").textContent, /60 seconds/);
   assert.equal(ui.$("btn-drive").disabled, false);
   assert.equal(ui.$("btn-start").disabled, false);
   assert.equal(ui.intervals.size, 0);
@@ -141,11 +141,11 @@ test("missing source files do not create phantom playlist rows or stop a recover
   } });
   assert.equal(ui.$("pl-list").children.length, 0);
   assert.equal(ui.document.body.classList.contains("running"), true);
-  assert.match(ui.$("lcd-status").textContent, /SUMBER LOKAL TIDAK DITEMUKAN/);
+  assert.match(ui.$("lcd-status").textContent, /LOCAL SOURCE NOT FOUND/);
   assert.equal(ui.calls.some((x) => x.command === "stop_colab_batch"), false);
   await ui.emit("colab://event", event("C:/gone/clip.mp4", "completed", 100));
   await ui.emit("colab://done", { ok: 1, fail: 0, cancelled: 0, total: 1 });
-  assert.match(ui.$("lcd-status").textContent, /selesai 1/);
+  assert.match(ui.$("lcd-status").textContent, /finished 1/);
   assert.equal(ui.$("lcd-count").textContent, "1/1");
 });
 
@@ -153,7 +153,7 @@ test("Start retries saved failed uploads through resume while an inactive pendin
   let resumes = 0;
   const ui = await createFrontend({ handlers: {
     colab_auth_status: () => connected,
-    resume_colab_jobs: () => { resumes++; return [event("C:/input/clip.mp4", "uploading", 0, { message: "Upload terputus" })]; },
+    resume_colab_jobs: () => { resumes++; return [event("C:/input/clip.mp4", "uploading", 0, { message: "Upload interrupted" })]; },
   } });
   assert.match(ui.$("btn-start").title, /LANJUTKAN/);
   assert.equal(ui.$("btn-drive").disabled, false);
@@ -281,8 +281,8 @@ test("Stop requests remote cancellation and waits for final counts before unlock
   assert.equal(ui.$("btn-drive").disabled, false);
   assert.equal(ui.$("btn-mute").disabled, false);
   assert.equal(ui.intervals.size, 0);
-  assert.match(ui.$("pl-status").textContent, /BATAL/);
-  assert.match(ui.$("lcd-status").textContent, /dibatalkan 1/);
+  assert.match(ui.$("pl-status").textContent, /CANCELLED/);
+  assert.match(ui.$("lcd-status").textContent, /cancelled 1/);
   assert.equal(ui.$("lcd-count").textContent, "1/1");
   assert.equal(ui.calls.some((x) => x.command === "stop_batch"), false);
 });
@@ -392,7 +392,7 @@ test("Colab progress matches canonical Windows paths and keeps equal filenames i
   const rows = ui.$("pl-list").children;
   assert.equal(rows[0].querySelector(".len").textContent, "42%");
   assert.notEqual(rows[1].querySelector(".len").textContent, "42%");
-  assert.match(ui.$("lcd-status").textContent, /MENGUNGGAH/);
+  assert.match(ui.$("lcd-status").textContent, /UPLOADING/);
   assert.notEqual(ui.$("seek-fill").style.width, "0%");
   await ui.emit("colab://event", event("C:\\other\\clip.mp4", "failed", 0,
     { job_id: "job-two", message: "Drive penuh" }));
@@ -400,7 +400,7 @@ test("Colab progress matches canonical Windows paths and keeps equal filenames i
   assert.match(rows[1].title, /Drive penuh/);
   assert.equal(rows[0].classList.contains("fail"), false);
   await ui.emit("colab://event", event("C:\\input\\clip.mp4", "runtime-disconnected", 42));
-  assert.match(ui.$("lcd-status").textContent, /RUN ALL KEMBALI/);
+  assert.match(ui.$("lcd-status").textContent, /RUN ALL AGAIN/);
   assert.equal(ui.document.body.classList.contains("running"), true);
 });
 
@@ -409,9 +409,9 @@ test("a temporary Drive outage keeps its retry message instead of asking for Run
   await ui.pick();
   await ui.$("btn-start").click();
   await ui.emit("colab://event", event("C:/input/clip.mp4", "runtime-disconnected", 42, {
-    message: "KONEKSI DRIVE TERPUTUS — MENCOBA KEMBALI",
+    message: "DRIVE CONNECTION LOST — RETRYING",
   }));
-  assert.match(ui.$("lcd-status").textContent, /DRIVE TERPUTUS/);
+  assert.match(ui.$("lcd-status").textContent, /DRIVE CONNECTION LOST/);
   assert.doesNotMatch(ui.$("lcd-status").textContent, /RUN ALL/);
 });
 

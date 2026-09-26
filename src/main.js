@@ -199,7 +199,7 @@ function setBgFx(mode, persist = true) {
   document.body.classList.remove(...FX_MODES.map((f) => "fx-" + f.id));
   document.body.classList.add("fx-" + fx.id);
   const btn = $("btn-bg-fx");
-  btn.title = `Efek latar: ${fx.label.toLowerCase()} — klik untuk ganti`;
+  btn.title = `Background effect: ${fx.label.toLowerCase()} — click to change`;
   btn.querySelector(".fx-name").textContent = fx.label;
   if (persist) saveConfig();
 }
@@ -240,7 +240,7 @@ function setRunState(phase) {
   setEnabled($("btn-pause"), (phase === "running" || phase === "paused") && !state.stopping);
   setEnabled($("btn-stop"), phase === "running" || phase === "paused");
   $("btn-pause").title = (state.pauseRequested ?? (phase === "paused"))
-    ? "LANJUTKAN — batalkan jeda atau lanjutkan proses" : "PAUSE — jeda proses";
+    ? "RESUME — cancel the pause request or continue processing" : "PAUSE — jeda proses";
   setEqActive(phase === "running");
 }
 
@@ -347,7 +347,7 @@ const ddScale = makeDropdown($("dd-scale"), updateLcdMeta);
 const ddFit = makeDropdown($("dd-fit"), updateLcdMeta);
 const ddProxyMode = makeDropdown($("dd-proxy-mode"));
 ddProxyMode.setOptions([
-  { value: "direct", label: "Langsung (tanpa proxy)" },
+  { value: "direct", label: "Direct (no proxy)" },
   { value: "user", label: "Pakai list proxy" },
   { value: "tor", label: "Tor (rotasi IP otomatis)" },
   { value: "free", label: "Gratis otomatis (HProxy+ProxyScrape)" },
@@ -574,7 +574,7 @@ function renderPlaylist(files, restoring = false) {
   const ul = $("pl-list");
   ul.innerHTML = "";
   state.files = files;
-  $("pl-count").textContent = `${files.length} file`;
+  $("pl-count").textContent = `${files.length} file${files.length === 1 ? "" : "s"}`;
   // total LCD langsung = jumlah file di playlist (0/total)
   updateCount(0, files.length);
   updateErrCount(0);
@@ -661,7 +661,7 @@ function clearPlaylist() {
   if (state.running || state.recovering) return;
   $("pl-list").innerHTML = "";
   state.files = [];
-  $("pl-count").textContent = "0 file";
+  $("pl-count").textContent = "0 files";
   updateCount(0, 0);
   updateErrCount(0);
   setSeek(0);
@@ -683,7 +683,7 @@ function clearFinished() {
     if (doneKeys.has(rowKey(li.dataset.jobId, li.dataset.path))) li.remove();
   }
   state.files = state.files.filter((f) => !doneKeys.has(rowKey(f.job_id, XIXColabRemoteUI.normalizePath(f.path))));
-  $("pl-count").textContent = `${state.files.length} file`;
+  $("pl-count").textContent = `${state.files.length} file${state.files.length === 1 ? "" : "s"}`;
   // total = sisa (failed + belum diproses); angka baris tetap (tidak reset ke 1)
   updateCount(0, state.files.length);
   updateErrCount(0);
@@ -695,7 +695,7 @@ function toggleClearMenu() {
   document.querySelectorAll(".dd-list:not(.hidden)").forEach((l) => l.classList.add("hidden"));
   if (opening) {
     const n = [...$("pl-list").children].filter((li) => li.classList.contains("done")).length;
-    $("cm-done").textContent = n ? `Hapus yang berhasil (${n})` : "Hapus yang berhasil";
+    $("cm-done").textContent = n ? `Clear successful (${n})` : "Clear successful";
     menu.classList.remove("hidden");
     document.addEventListener("mousedown", clearMenuOutside);
   } else {
@@ -749,7 +749,7 @@ async function restoreColabJobs() {
   } catch (error) {
     state.colabResumeRequired = true;
     await driveControl.refresh();
-    setStatus("PEMULIHAN COLAB GAGAL: " + error, true);
+    setStatus("COLAB RECOVERY FAILED: " + error, true);
   } finally {
     colabReady = true;
     state.recovering = false;
@@ -788,7 +788,7 @@ function renderColabProgress() {
     li.title = row.message || "";
   }
   const missingSource = colabUi.rows.some((row) => colabMissingPaths.has(XIXColabRemoteUI.normalizePath(row.file)) && !["completed", "cancelled", "failed"].includes(row.phase));
-  setLcd(missingSource ? "SUMBER LOKAL TIDAK DITEMUKAN — " + colabUi.lcd : colabUi.lcd);
+  setLcd(missingSource ? "LOCAL SOURCE NOT FOUND — " + colabUi.lcd : colabUi.lcd);
   setSeek(colabUi.percent);
   updateCount(colabUi.done || 0, colabUi.rows.length);
   updateErrCount(colabUi.failed || 0);
@@ -829,7 +829,7 @@ async function start() {
     output.length > 0,
   );
   if (requirement === "input-output-required") {
-    setStatus("PILIH FILE / FOLDER INPUT & ISI OUTPUT", true);
+    setStatus("SELECT INPUT FILES / FOLDER AND SET OUTPUT", true);
     return;
   }
   state.running = true;
@@ -842,7 +842,7 @@ async function start() {
       [XIXColabRemoteUI.normalizePath(file.path), file])).values()]
       .map(({ job_id, ...file }) => file);
     renderPlaylist(inputs, true);
-    colabUi = { rows: state.files.map((f) => ({ file: f.path, phase: "queued", percent: 0 })), percent: 0, lcd: "MEMERIKSA VIDEO", paused: false };
+    colabUi = { rows: state.files.map((f) => ({ file: f.path, phase: "queued", percent: 0 })), percent: 0, lcd: "CHECKING VIDEO", paused: false };
   }
   state.paused = false;
   state.pauseRequested = null;
@@ -873,12 +873,12 @@ async function stop() {
   if (state.batchMode === "colab-remote") {
     state.stopping = true;
     setRunState(state.paused ? "paused" : "running");
-    setLcd("MEMINTA PEMBATALAN COLAB");
+    setLcd("REQUESTING COLAB CANCELLATION");
     try { await invoke("stop_colab_batch", {}); }
     catch (error) {
       state.stopping = false;
       setRunState(state.paused ? "paused" : "running");
-      setStatus("PEMBATALAN GAGAL: " + error, true);
+      setStatus("CANCELLATION FAILED: " + error, true);
     }
     return;
   }
@@ -894,14 +894,14 @@ async function togglePause() {
     const generation = (state.pauseGeneration || 0) + 1;
     state.pauseGeneration = generation;
     setRunState(state.paused ? "paused" : "running");
-    setLcd(requested ? "MENUNGGU CHECKPOINT UNTUK JEDA" : "JALANKAN RUN ALL KEMBALI DI COLAB");
+    setLcd(requested ? "WAITING FOR CHECKPOINT TO PAUSE" : "RUN ALL IN COLAB AGAIN");
     try {
       await invoke("pause_colab_batch", { paused: requested });
     } catch (error) {
       if (generation === state.pauseGeneration) {
         state.pauseRequested = null;
         setRunState(state.paused ? "paused" : "running");
-        setStatus("PERMINTAAN JEDA GAGAL: " + error, true);
+        setStatus("PAUSE REQUEST FAILED: " + error, true);
       }
     }
     return;
@@ -1078,10 +1078,10 @@ async function saveConfig() {
 async function openColabNotebook() {
   try {
     await invoke("open_colab_notebook", {});
-    setLcd("JALANKAN RUN ALL DI COLAB");
+    setLcd("RUN ALL IN COLAB");
   } catch (error) {
     $("btn-colab-notebook").classList.remove("hidden");
-    setStatus("BUKA COLAB KEMBALI: " + error, true);
+    setStatus("REOPEN COLAB: " + error, true);
   }
 }
 $("btn-colab-notebook").onclick = openColabNotebook;
@@ -1093,12 +1093,12 @@ async function onColabDone(payload) {
   if (state.batchMode !== "colab-remote") return;
   const { ok, fail, cancelled, total } = payload;
   state.colabResumeRequired = fail > 0;
-  stopBatchUI(`selesai ${ok} · gagal ${fail} · dibatalkan ${cancelled} / ${total}`, fail > 0);
+  stopBatchUI(`finished ${ok} · failed ${fail} · cancelled ${cancelled} / ${total}`, fail > 0);
   updateCount(total, total);
   updateErrCount(fail);
   setSeek(100);
   $("btn-colab-notebook").classList.add("hidden");
-  $("pl-status").textContent = fail ? `SELESAI (${fail} GAGAL)` : cancelled ? `DIBATALKAN (${cancelled})` : "DONE";
+  $("pl-status").textContent = fail ? `FINISHED (${fail} FAILED)` : cancelled ? `CANCELLED (${cancelled})` : "DONE";
   $("pl-status").className = fail ? "err" : "ok";
   await driveControl.refresh();
 }
@@ -1146,12 +1146,12 @@ listen("batch://event", (e) => {
 listen("batch://done", (e) => {
   if (state.batchMode !== "local-batch") return;
   const { ok, fail, total } = e.payload;
-  setLcd("SELESAI");
-  stopBatchUI(`selesai ${ok} · gagal ${fail} / ${total}`, fail > 0);
+  setLcd("FINISHED");
+  stopBatchUI(`finished ${ok} · failed ${fail} / ${total}`, fail > 0);
   updateCount(total, total);
   setSeek(100);
   const st = $("pl-status");
-  st.textContent = fail > 0 ? `SELESAI (${fail} GAGAL)` : "DONE";
+  st.textContent = fail > 0 ? `FINISHED (${fail} FAILED)` : "DONE";
   st.className = fail > 0 ? "err" : "ok";
   saveConfig();
 });

@@ -21,7 +21,7 @@
 
     <!-- ===== MAIN DISPLAY ===== -->
     <div class="display">
-      <div class="lcd" title="Status proses: file selesai / total">
+      <div class="lcd" title="Processing status: files finished / total">
         <div class="clock">
           <span id="lcd-count">0/0</span>
           <span class="err-count hidden" id="lcd-err" title="Jumlah error">✘0</span>
@@ -33,7 +33,7 @@
         <div class="bar"></div><div class="bar"></div><div class="bar"></div>
         <div class="bar"></div><div class="bar"></div><div class="bar"></div>
         <div class="bar"></div>
-        <div class="eq-timer" id="eq-timer" title="Waktu proses">0:00</div>
+        <div class="eq-timer" id="eq-timer" title="Processing time">0:00</div>
       </div>
     </div>
 
@@ -71,11 +71,11 @@
       <div class="tbtn run-ctrl disabled" id="btn-stop" title="STOP — hentikan proses">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/></svg>
       </div>
-      <div class="tbtn sep" id="btn-pick-files" title="Pilih file gambar (multi)"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2h-4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8"/><path d="M16.706 2.706A2.4 2.4 0 0 0 15 2v5a1 1 0 0 0 1 1h5a2.4 2.4 0 0 0-.706-1.706z"/><path d="M5 7a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h8a2 2 0 0 0 1.732-1"/></svg></div>
-      <div class="tbtn" id="btn-pick-folder" title="Pilih folder input"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></div>
+      <div class="tbtn sep" id="btn-pick-files" title="Select image files (multi)"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2h-4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8"/><path d="M16.706 2.706A2.4 2.4 0 0 0 15 2v5a1 1 0 0 0 1 1h5a2.4 2.4 0 0 0-.706-1.706z"/><path d="M5 7a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h8a2 2 0 0 0 1.732-1"/></svg></div>
+      <div class="tbtn" id="btn-pick-folder" title="Select input folder"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></div>
       <div class="toggles">
         <div class="tgbtn" id="btn-adv" title="Tampilkan opsi lanjutan">ADV</div>
-        <button type="button" class="tgbtn hidden" id="btn-mute" aria-pressed="false" title="Hilangkan audio dari output video">MUTE</button>
+        <button type="button" class="tgbtn hidden" id="btn-mute" aria-pressed="false" title="Remove audio from video output">MUTE</button>
         <button type="button" class="tgbtn hidden" id="btn-drive" aria-pressed="false" aria-expanded="false" aria-controls="drive-menu" title="Hubungkan Google Drive">DRIVE</button>
         <div class="drive-menu hidden" id="drive-menu" aria-label="Akun Google Drive">
           <span id="drive-account"></span>
@@ -94,7 +94,7 @@
       <div class="cfg">
         <label>OUTPUT</label>
         <input type="text" id="cfg-output" spellcheck="false" placeholder="folder hasil">
-        <button class="pick" id="btn-output" title="Buka folder output"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></button>
+        <button class="pick" id="btn-output" title="Open output folder"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></button>
       </div>
       <!-- opsi engine dirender dari options_schema (renderAdvOpts) -->
       <div id="adv-opts"></div>
@@ -109,22 +109,22 @@
         <ul id="pl-list"></ul>
       </div>
       <div class="pl-status">
-        <span id="pl-count">0 file</span>
-        <button type="button" id="btn-colab-notebook" class="hidden">BUKA COLAB</button>
+        <span id="pl-count">0 files</span>
+        <button type="button" id="btn-colab-notebook" class="hidden">OPEN COLAB</button>
         <span id="pl-status">READY</span>
       </div>
       <div class="pl-toolbar">
         <div class="clear-menu hidden" id="clear-menu">
-          <div class="cm-item" id="cm-all">Hapus semua</div>
-          <div class="cm-item" id="cm-done">Hapus yang berhasil</div>
+          <div class="cm-item" id="cm-all">Clear all</div>
+          <div class="cm-item" id="cm-done">Clear successful</div>
         </div>
-        <div class="pl-btn" id="btn-remove" title="Bersihkan playlist"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></div>
+        <div class="pl-btn" id="btn-remove" title="Clear playlist"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></div>
         <div class="pl-btn fx-btn" id="btn-bg-fx" title="Efek latar: none">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg>
           <span class="fx-name">OFF</span>
         </div>
         <div class="grow"></div>
-        <div class="pl-btn" id="btn-output-dir" title="Buka folder output"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"/></svg></div>
+        <div class="pl-btn" id="btn-output-dir" title="Open output folder"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"/></svg></div>
       </div>
     </div>
 
@@ -140,7 +140,7 @@
       <div class="modal-body">
         <section id="license-panel" aria-label="Application license">
           <div class="license-head">
-            <span class="license-label">LICENSE</span>
+            <span class="license-label">STATUS:</span>
             <span id="license-badge">CHECKING</span>
             <button id="license-refresh" type="button" aria-label="Refresh license">↻</button>
           </div>
@@ -149,10 +149,10 @@
           <div class="license-trial-label">Trial Limit:</div>
           <div class="license-trials"><span id="license-trial-total">TOTAL: —/10</span></div>
           <div class="license-actions">
-            <input id="license-key" type="password" autocomplete="off" spellcheck="false" placeholder="Mayar license code" aria-label="Mayar license code">
+            <input id="license-key" type="password" autocomplete="off" spellcheck="false" placeholder="Enter Mayar license code" aria-label="Mayar license code">
             <button id="license-activate" type="button">ACTIVATE</button>
           </div>
-          <div id="license-help">Trial: 10 successful files total. One license per device.</div>
+          <div id="license-help">Trial: 10 successful files total. This device is linked to one Mayar account.</div>
           <button id="license-buy" type="button">Get License</button>
         </section>
       </div>

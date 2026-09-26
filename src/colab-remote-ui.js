@@ -4,13 +4,13 @@
   root.XIXColabRemoteUI = api;
 })(typeof globalThis !== "undefined" ? globalThis : this, function () {
   const PHASE_LABELS = {
-    queued: "MENUNGGU ANTREAN", validating: "MEMERIKSA VIDEO",
-    authenticating: "HUBUNGKAN GOOGLE DRIVE", uploading: "MENGUNGGAH VIDEO",
-    "waiting-for-colab": "JALANKAN RUN ALL DI COLAB", preparing: "MENYIAPKAN GPU DAN MODEL",
-    processing: "MEMPROSES VIDEO", paused: "DIJEDA SETELAH CHECKPOINT",
-    "runtime-disconnected": "RUNTIME COLAB TERPUTUS — RUN ALL KEMBALI",
-    downloading: "MENGUNDUH HASIL", verifying: "MEMVERIFIKASI HASIL",
-    completed: "SELESAI", cancelled: "DIBATALKAN", failed: "GAGAL",
+    queued: "WAITING IN QUEUE", validating: "CHECKING VIDEO",
+    authenticating: "CONNECT GOOGLE DRIVE", uploading: "UPLOADING VIDEO",
+    "waiting-for-colab": "RUN ALL IN COLAB", preparing: "PREPARING GPU AND MODEL",
+    processing: "PROCESSING VIDEO", paused: "PAUSED AFTER CHECKPOINT",
+    "runtime-disconnected": "COLAB RUNTIME DISCONNECTED — RUN ALL AGAIN",
+    downloading: "DOWNLOADING RESULT", verifying: "VERIFYING RESULT",
+    completed: "FINISHED", cancelled: "CANCELLED", failed: "FAILED",
   };
   const terminal = (phase) => ["completed", "cancelled", "failed"].includes(phase);
 

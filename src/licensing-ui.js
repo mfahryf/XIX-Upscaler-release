@@ -16,7 +16,7 @@
     if (!Number.isFinite(timestamp) || timestamp <= 0) return null;
     const date = new Date(timestamp * 1000);
     if (Number.isNaN(date.getTime())) return null;
-    return new Intl.DateTimeFormat("id-ID", {
+    return new Intl.DateTimeFormat("en-US", {
       day: "numeric",
       month: "long",
       year: "numeric",
@@ -46,7 +46,7 @@
     const canProcess = licensed || (state === "trial" && hasTrial);
     const canStart = canProcess || state === "unactivated";
     let badge = "LOCKED";
-    let message = "Hubungkan internet untuk memvalidasi lisensi.";
+    let message = "Connect to the internet to validate your license.";
     if (state === "unactivated") {
       badge = "NOT ACTIVATED";
       message = "Process the first file to activate your online trial.";
@@ -57,22 +57,22 @@
         : "Trial exhausted. Activate a license to continue.";
     } else if (state === "licensed") {
       badge = "LICENSED";
-      message = "Lisensi aktif.";
+      message = "License is active.";
     } else if (state === "licensed-offline") {
       badge = "OFFLINE LICENSE";
-      message = "Lisensi aktif sementara tanpa koneksi.";
+      message = "License is active temporarily without a connection.";
     } else if (state === "subscription-expired" || state === "subscription_expired") {
       badge = "EXPIRED";
-      message = "Langganan berakhir. Perbarui lisensi untuk melanjutkan.";
+      message = "Subscription expired. Renew your license to continue.";
     } else if (state === "provider_inactive" || state === "provider-inactive") {
       badge = "MAYAR INACTIVE";
-      message = "Kode lisensi Mayar tidak aktif. Hubungi XIXLabs untuk bantuan.";
+      message = "Mayar license code is not active. Contact XIXLabs for help.";
     } else if (state === "revoked") {
       badge = "REVOKED";
-      message = "Lisensi dicabut. Hubungi admin untuk bantuan.";
+      message = "License revoked. Contact your admin for help.";
     } else if (state === "device-conflict") {
       badge = "DEVICE CONFLICT";
-      message = "Lisensi terikat ke perangkat lain. Hubungi admin untuk reset perangkat.";
+      message = "License is linked to another device. Contact your admin to reset the device.";
     } else if (state === "expired-offline") {
       badge = "RECONNECT";
     } else if (state === "device-identity-lost") {
@@ -80,14 +80,14 @@
       const code = status && status.recovery_request_code;
       const contact = status && status.recovery_contact;
       message = code
-        ? `Identitas hilang. Kode pemulihan: ${code}. ${contact || "Hubungi admin."}`
-        : "Identitas perangkat hilang. Hubungi admin untuk pemulihan.";
+        ? `Identity lost. Recovery code: ${code}. ${contact || "Contact your admin."}`
+        : "Device identity is lost. Contact your admin for recovery.";
     } else if (state === "clock-rollback") {
       badge = "CLOCK CHECK";
-      message = "Waktu perangkat mundur. Periksa jam lalu validasi lisensi.";
+      message = "Device clock has moved backwards. Check the clock, then validate the license.";
     } else if (state === "unavailable") {
       badge = "UNAVAILABLE";
-      message = "Status lisensi sementara tidak tersedia.";
+      message = "License status is temporarily unavailable.";
     }
     const helpMessage = licensed ? "" : message;
     return {
@@ -132,7 +132,7 @@
       $("license-expiry").classList.toggle("hidden", !view.expiryText);
       $("license-panel").classList.toggle("license-locked", !view.canProcess);
       $("license-help").textContent = view.canProcess
-        ? (view.helpMessage || "One Mayar license is linked to this device.")
+        ? (view.helpMessage || "This device is linked to one Mayar account.")
         : "Processing is locked. Activate a Mayar license to continue.";
       const start = $("btn-start");
       if (start && !document.body.classList.contains("running")) {
