@@ -564,6 +564,7 @@ where
 mod tests {
     use super::LicenseClient;
     use crate::licensing::error::LicenseError;
+    use crate::licensing::models::PRODUCT_ID;
     use std::io::{Read, Write};
     use std::net::TcpListener;
     use std::thread;
@@ -619,21 +620,28 @@ mod tests {
             let mut request = [0_u8; 4096];
             let size = stream.read(&mut request).expect("read test request");
             let request = String::from_utf8_lossy(&request[..size]);
-            assert!(request.starts_with("GET /v1/desktop/products/xix-vectorizer HTTP/1.1"));
-            let body = br#"{"product_id":"xix-vectorizer","checkout_url":"https://xix-apps.myr.id/pl/xix-vectorizer-monthly-license"}"#;
+            assert!(request.starts_with(&format!(
+                "GET /v1/desktop/products/{PRODUCT_ID} HTTP/1.1"
+            )));
+            let body = format!(
+                r#"{{"product_id":"{PRODUCT_ID}","checkout_url":"https://xix-apps.myr.id/pl/{PRODUCT_ID}-monthly-license"}}"#
+            );
             write!(
                 stream,
                 "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
                 body.len()
             )
             .expect("write test headers");
-            stream.write_all(body).expect("write test body");
+            stream.write_all(body.as_bytes()).expect("write test body");
         });
 
         let client = LicenseClient::new(format!("http://{address}"), None).expect("client");
         let checkout_url = client.checkout_url().await.expect("checkout URL");
 
-        assert_eq!(checkout_url, "https://xix-apps.myr.id/pl/xix-vectorizer-monthly-license");
+        assert_eq!(
+            checkout_url,
+            format!("https://xix-apps.myr.id/pl/{PRODUCT_ID}-monthly-license")
+        );
         server.join().expect("test server join");
     }
 }

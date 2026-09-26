@@ -1,4 +1,5 @@
 use super::*;
+use crate::licensing::models::{ENGINE_IDS, PRODUCT_ID};
 use crate::licensing::{
     AccessDecision, LeasePayload, LicenseManager, LicenseState, LicenseStore, LocalLicenseState,
     TrialState, UsageLedger, UsageRecord,
@@ -187,25 +188,23 @@ async fn claim_uses_device_challenge_and_flat_signed_request_body() {
             .verify(&signed, &signature)
             .unwrap();
 
+        let trial_counters = || {
+            ENGINE_IDS
+                .iter()
+                .map(|engine_id| ((*engine_id).to_string(), json!(5)))
+                .collect::<serde_json::Map<String, serde_json::Value>>()
+        };
         let payload = json!({
-            "product_id": "xix-vectorizer",
+            "product_id": PRODUCT_ID,
             "device_id": expected_identity.registration_id(),
-            "trial_remaining_by_engine": {
-                "vectorize-v1": 5,
-                "vectorize-v2": 5,
-                "pngtosvg": 5
-            },
+            "trial_remaining_by_engine": trial_counters(),
             "key_id": "gateway-test"
         });
         let signature = gateway_key.sign(&canonical_trial_token_bytes(&payload));
         write_json_response(&mut claim_stream, &json!({
             "license_state": "trial",
             "device_state": "registered",
-            "trial_remaining_by_engine": {
-                "vectorize-v1": 5,
-                "vectorize-v2": 5,
-                "pngtosvg": 5
-            },
+            "trial_remaining_by_engine": trial_counters(),
             "server_time": 1_700_000_000_i64,
             "trial_token": {
                 "payload": payload,
@@ -605,11 +604,26 @@ async fn first_processing_preflight_claims_online_before_allowing_trial() {
     let client = crate::licensing::LicenseClient::new("http://127.0.0.1:1", None).unwrap();
     let manager = LicenseManager::with_client(&dir, client).unwrap();
 
-    let error = manager.preflight("pngtosvg", 1).await.unwrap_err();
+    let error = manager.preflight(ENGINE_IDS[0], 1).await.unwrap_err();
 
     assert!(matches!(error, crate::licensing::LicenseError::Network(_)));
     assert!(DeviceIdentityStore::path(&dir).exists());
     assert!(!LicenseStore::new(&dir).path().exists());
+}
+
+#[tokio::test]
+async fn refresh_on_a_fresh_install_creates_the_device_instead_of_failing_locally() {
+    let dir = tempfile_dir("refresh-fresh");
+    let client = crate::licensing::LicenseClient::new("http://127.0.0.1:1", None).unwrap();
+    let manager = LicenseManager::with_client(&dir, client).unwrap();
+
+    let error = manager.refresh().await.unwrap_err();
+
+    // The gateway is unreachable here, so the failure has to be a network
+    // problem. It must not be the local "device identity lost" that never
+    // reaches the server, which is what a fresh install used to hit.
+    assert!(matches!(error, crate::licensing::LicenseError::Network(_)));
+    assert!(DeviceIdentityStore::path(&dir).exists());
 }
 
 #[test]

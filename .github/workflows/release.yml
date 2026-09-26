@@ -24,6 +24,9 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
       - name: Install JavaScript dependencies
         run: npm ci
+      - name: Run Rust tests
+        run: cargo test --lib
+        working-directory: src-tauri
       - name: Build and publish Windows installer
         uses: tauri-apps/tauri-action@v1
         env:

@@ -1,9 +1,12 @@
 (function (root, factory) {
+  // Assign the global unconditionally: bundlers that inject a CommonJS shim
+  // (Vite/Rollup) make `typeof module === "object"` true, so an else-only
+  // assignment would leave `window.XixLicensingUI` undefined in the bundle.
+  const api = factory();
   if (typeof module === "object" && module.exports) {
-    module.exports = factory();
-  } else {
-    root.XixLicensingUI = factory();
+    module.exports = api;
   }
+  root.XixLicensingUI = api;
 })(typeof globalThis === "object" ? globalThis : this, function () {
   const ENGINE_IDS = ["upscale-v1", "upscale-esrgan", "video-colab"];
   const TRIAL_TOTAL_LIMIT = 10;

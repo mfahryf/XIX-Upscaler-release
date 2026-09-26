@@ -302,7 +302,7 @@ impl LicenseManager {
     }
 
     pub async fn refresh(&self) -> Result<Status, LicenseError> {
-        let identity = self.load_identity()?;
+        let identity = self.ensure_identity()?;
         self.refresh_from_server(&identity).await
     }
 
