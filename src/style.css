@@ -991,6 +991,33 @@ body #proxy-save {
 #license-help { color: var(--text-dim); font-size: 11px; line-height: 1.35; }
 #update-message { line-height: 1.5; }
 #update-modal .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+
+/* Update notification sizing mirrors the Vectorizer pilot. */
+body #update-modal-overlay { padding: 14px; box-sizing: border-box; }
+body #update-modal { width: min(320px, calc(100vw - 28px)); }
+body #update-modal .modal-title {
+  min-height: 30px;
+  padding: 0 12px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.03));
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+}
+body #update-modal .modal-body {
+  padding: 14px;
+  font-size: 11px;
+  line-height: 1.45;
+}
+body #update-modal .modal-actions { margin-top: 14px; }
+body #update-modal .modal-actions button {
+  min-width: 86px;
+  height: 28px;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 8px;
+}
+body #update-modal #update-message { line-height: 1.45; }
 #license-modal button:disabled,
 #update-modal button:disabled { opacity: 0.55; cursor: wait; }
 #btn-license:focus-visible,
